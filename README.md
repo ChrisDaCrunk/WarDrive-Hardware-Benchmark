@@ -1,4 +1,5 @@
 # Wardriving Device Performance & Benchmark Tool – Presentation Speech
+<img width="952" height="1705" alt="image" src="https://github.com/user-attachments/assets/b3d8ccf0-0675-41ad-a5e6-a80b3ef4be63" />
 
 ## 1. Introduction: Why Measure What We Measure?
 Hello everyone! When we discuss hardware performance in the wardriving community, we often hear statements like: *"My board scans super fast"*, *"It logs down in dual-band/mixed mode"*, or *"The firmware crashes under heavy load."*
