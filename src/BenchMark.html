@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wardriving Device Performance & Benchmark Tool</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --accent-hover: #0284c7;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --border: #334155;
+            --success: #4ade80;
+            --gold: #fbbf24;
+            --silver: #94a3b8;
+            --bronze: #b45309;
+            --warning-bg: rgba(245, 158, 11, 0.1);
+            --warning-border: rgba(245, 158, 11, 0.4);
+            --warning-text: #f59e0b;
+
+            /* Leaderboard Lila / Magenta Theme */
+            --lb-bg: #14081f;
+            --lb-card-bg: #1c0b2b;
+            --lb-border: #4a1d6e;
+            --lb-accent: #e879f9;
+            --lb-magenta: #ff00ff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        h1 {
+            color: var(--accent);
+            margin-bottom: 0.2rem;
+        }
+
+        p.subtitle {
+            color: var(--text-sub);
+            margin-top: 0;
+        }
+
+        .privacy-banner {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            border-left: 4px solid #f59e0b;
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            line-height: 1.4;
+        }
+
+        .privacy-banner svg {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            fill: #f59e0b;
+            margin-top: 0.1rem;
+        }
+
+        .drop-zone {
+            border: 2px dashed var(--accent);
+            border-radius: 12px;
+            padding: 2.5rem;
+            text-align: center;
+            background-color: rgba(56, 189, 248, 0.05);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .drop-zone:hover, .drop-zone.dragover {
+            background-color: rgba(56, 189, 248, 0.15);
+            border-color: #7dd3fc;
+        }
+
+        .drop-zone input {
+            display: none;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.25rem;
+            color: var(--accent);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        /* SPEZIFISCHES LILA / MAGENTA LEADERBOARD THEME */
+        .leaderboard-card {
+            background-color: var(--lb-card-bg);
+            border: 1px solid var(--lb-border);
+            box-shadow: 0 4px 20px rgba(74, 29, 110, 0.25);
+        }
+
+        .leaderboard-card h2 {
+            color: var(--lb-accent);
+            border-bottom-color: var(--lb-border);
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        .leaderboard-table th {
+            color: #d8b4fe;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--lb-border);
+            font-weight: 600;
+        }
+
+        .leaderboard-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid rgba(74, 29, 110, 0.3);
+        }
+
+        .leaderboard-table tr:hover {
+            background-color: rgba(232, 121, 249, 0.05);
+        }
+
+        .info-box {
+            background: rgba(56, 189, 248, 0.05);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            line-height: 1.5;
+        }
+
+        .info-box strong {
+            color: var(--accent);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .metric {
+            background: rgba(15, 23, 42, 0.5);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .metric-title {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .metric-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-top: 0.3rem;
+            color: var(--text-main);
+            word-break: break-word;
+        }
+
+        .metric-sub {
+            font-size: 0.8rem;
+            color: var(--success);
+            margin-top: 0.2rem;
+        }
+
+        .score-card {
+            border: 1px solid rgba(251, 191, 36, 0.4);
+            background: rgba(251, 191, 36, 0.05);
+        }
+
+        .score-value {
+            color: var(--gold);
+            font-size: 1.6rem;
+        }
+
+        .rank-1 { color: var(--gold); font-weight: bold; }
+        .rank-2 { color: var(--silver); font-weight: bold; }
+        .rank-3 { color: #f97316; font-weight: bold; }
+
+        .hidden {
+            display: none;
+        }
+
+        @keyframes slideDownFade {
+            0% { opacity: 0; transform: translateY(-20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in-cards {
+            animation: slideDownFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div>
+        <h1>Wardriving Device Performance</h1>
+        <p class="subtitle">Secure server-side analysis & global hardware leaderboard.</p>
+    </div>
+
+    <!-- DATENSCHUTZ & SICHERHEITS HINWEIS BANNER -->
+    <div class="privacy-banner">
+        <svg viewBox="0 0 24 24">
+            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+        </svg>
+        <div>
+            <strong>Privacy Notice:</strong> Your uploaded CSV data is processed strictly in-memory for live benchmark metrics and is <strong>never stored</strong> on the server. Only the resulting hardware performance score and device descriptors are recorded for the leaderboard.
+        </div>
+    </div>
+
+    <!-- Test Scenario Info Box -->
+    <div class="info-box">
+        <strong>🧪 Standardized Benchmark Test Scenario:</strong><br>
+        1. <strong>Real-life mode:</strong> Upload any random Wardriving CSV.<br>
+        2. <strong>Stress-Test mode:</strong> Run a Wi-Fi hammer + BLE spammer simultaneously, start your wardriver device, and let it log for approx. <strong>2 minutes</strong> under heavy load. Upload the resulting CSV.<br>
+        <em>Note: If your hardware crashes or suffers a watchdog reset before 2 minutes due to high load, simply upload the crash/partial file!</em>
+    </div>
+
+    <div class="drop-zone" id="dropZone">
+        <p style="font-size: 1.2rem; font-weight: 500; margin-top:0;">Drop your Wardrive CSV here or click to select</p>
+        <p style="color: var(--text-sub); font-size: 0.9rem; margin-bottom: 0;">Files are securely parsed in RAM othing is stored.</p>
+        <input type="file" id="fileInput" accept=".csv, .txt">
+    </div>
+
+    <!-- ERGEBNIS-ANZEIGE NACH UPLOAD -->
+    <div id="results" class="hidden">
+        <div class="card">
+            <h2>Device & Header Information</h2>
+            <div class="grid">
+                <div class="metric">
+                    <div class="metric-title">Device / Model</div>
+                    <div class="metric-value" id="hdrDevice">-</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-title">Board / Architecture</div>
+                    <div class="metric-value" id="hdrBoard">-</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-title">Firmware / App</div>
+                    <div class="metric-value" id="hdrFirmware">-</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-title">WiGLE Header Format</div>
+                    <div class="metric-value" id="hdrWiggle">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Session Overview</h2>
+            <div class="grid">
+                <div class="metric">
+                    <div class="metric-title">Total Entries</div>
+                    <div class="metric-value" id="totalEntries">0</div>
+                    <div class="metric-sub" id="breakdownEntries">WiFi: 0 | BLE: 0</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-title">Total Duration</div>
+                    <div class="metric-value" id="totalDuration">0s</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-title">Average Rate</div>
+                    <div class="metric-value" id="avgRate">0,00 Probes / sec</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Hardware Performance Benchmarks</h2>
+            <div class="grid">
+                <div class="metric">
+                    <div class="metric-title">Fastest WiFi Capture (50 req)</div>
+                    <div class="metric-value" id="benchWifi">-</div>
+                    <div class="metric-sub" id="benchWifiRate">-</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-title">Fastest BLE Capture (50 req)</div>
+                    <div class="metric-value" id="benchBle">-</div>
+                    <div class="metric-sub" id="benchBleRate">-</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-title">Fastest Mix Capture (50 req)</div>
+                    <div class="metric-value" id="benchMix">-</div>
+                    <div class="metric-sub" id="benchMixRate">-</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-title">Peak 3-Sec Burst Window</div>
+                    <div class="metric-value" id="peakBurstVal">-</div>
+                    <div class="metric-sub" id="peakBurstRateSub">-</div>
+                </div>
+                <div class="metric score-card">
+                    <div class="metric-title" style="color: var(--gold);">Performance Score</div>
+                    <div class="metric-value score-value" id="scoreVal">-</div>
+                    <div class="metric-sub" id="scoreGradeSub" style="color: var(--gold);">-</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GLOBAL LEADERBOARD SECTION (LILA / MAGENTA THEME) -->
+    <div class="card leaderboard-card">
+        <h2>🏆 Global Hardware Leaderboard</h2>
+        <div style="overflow-x: auto;">
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Device</th>
+                        <th>Board</th>
+                        <th>Firmware</th>
+                        <th>Peak Burst</th>
+                        <th style="text-align: right;">Score</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboardBody">
+                    <tr><td colspan="6" style="text-align: center; color: var(--text-sub); padding: 1.5rem;">Loading leaderboard...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+
+    document.addEventListener('DOMContentLoaded', fetchLeaderboard);
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) processFile(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length) processFile(e.target.files[0]);
+    });
+
+    function processFile(file) {
+        const formData = new FormData();
+        formData.append('csv_file', file);
+
+        document.getElementById('results').classList.add('hidden');
+
+        fetch('process_and_submit.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(res => {
+            if (!res.success) {
+                alert("Error: " + res.error);
+                return;
+            }
+            renderServerResults(res.data);
+            fetchLeaderboard();
+        })
+        .catch(err => {
+            alert("Upload failed: " + err.message);
+        });
+    }
+
+    function fetchLeaderboard() {
+        fetch('get_leaderboard.php')
+        .then(res => res.json())
+        .then(res => {
+            if (!res.success) {
+                console.error("Leaderboard load error:", res.error);
+                return;
+            }
+            renderLeaderboard(res.data);
+        })
+        .catch(err => {
+            console.error("Failed to fetch leaderboard:", err);
+        });
+    }
+
+    function renderLeaderboard(data) {
+        const tbody = document.getElementById('leaderboardBody');
+        if (!data || data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-sub); padding: 1.5rem;">No entries yet. Be the first!</td></tr>`;
+            return;
+        }
+
+        let html = '';
+        data.forEach((row, index) => {
+            const rank = index + 1;
+            let rankClass = '';
+            if (rank === 1) rankClass = 'rank-1';
+            else if (rank === 2) rankClass = 'rank-2';
+            else if (rank === 3) rankClass = 'rank-3';
+
+            html += `
+                <tr>
+                    <td class="${rankClass}">#${rank}</td>
+                    <td><strong>${escapeHtml(row.device)}</strong></td>
+                    <td><span style="color: var(--lb-accent);">${escapeHtml(row.board)}</span></td>
+                    <td style="color: var(--text-sub);">${escapeHtml(row.firmware)}</td>
+                    <td>${parseInt(row.peak_burst).toLocaleString('de-DE')} Devices</td>
+                    <td style="text-align: right; font-weight: bold; color: var(--gold);">${parseInt(row.score).toLocaleString('de-DE')} pts</td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    }
+
+    function escapeHtml(str) {
+        return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function formatNumber(value, decimals = 2) {
+        if (isNaN(value)) return "0";
+        return value.toLocaleString('de-DE', {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals
+        });
+    }
+
+    function renderServerResults(data) {
+        document.getElementById('hdrWiggle').innerText = data.wiggleVer;
+        document.getElementById('hdrDevice').innerText = data.device;
+        document.getElementById('hdrBoard').innerText = data.board;
+        document.getElementById('hdrFirmware').innerText = data.firmware;
+
+        document.getElementById('totalEntries').innerText = data.totalEntries.toLocaleString('de-DE');
+        document.getElementById('breakdownEntries').innerText = `WiFi: ${data.wifiCount.toLocaleString('de-DE')} | BLE: ${data.bleCount.toLocaleString('de-DE')}`;
+        document.getElementById('totalDuration').innerText = formatDuration(data.totalDurationSec);
+        document.getElementById('avgRate').innerText = `${formatNumber(data.avgOps, 2)} Probes / sec`;
+
+        renderBenchmark('benchWifi', 'benchWifiRate', data.benchWifi);
+        renderBenchmark('benchBle', 'benchBleRate', data.benchBle);
+        renderBenchmark('benchMix', 'benchMixRate', data.benchMix);
+
+        if (!data.peakBurst || data.peakBurst === 0) {
+            document.getElementById('peakBurstVal').innerText = "N/A";
+            document.getElementById('peakBurstRateSub').innerText = "No data available";
+        } else {
+            document.getElementById('peakBurstVal').innerText = `${data.peakBurst.toLocaleString('de-DE')} Devices`;
+            const ratePerSec = Math.round(data.peakBurst / 3);
+            document.getElementById('peakBurstRateSub').innerText = `Peak Rate: ~${ratePerSec} Scans/s`;
+        }
+
+        const totalScore = data.score;
+        let tier = "Standard Hardware";
+        if (totalScore >= 50000) tier = "🔥 Elite Benchmark Tier";
+        else if (totalScore >= 30000) tier = "⚡ High-Performance Tier";
+        else if (totalScore >= 15000) tier = "🚀 Optimized Tier";
+        else if (totalScore >= 5000) tier = "💡 Baseline Tier";
+        else tier = "⚠️ Entry / Low Activity";
+
+        document.getElementById('scoreVal').innerText = `${totalScore.toLocaleString('de-DE')} pts`;
+        document.getElementById('scoreGradeSub').innerText = tier;
+
+        const resultsEl = document.getElementById('results');
+        resultsEl.classList.resulList?.remove?.('hidden'); // safe guard
+        resultsEl.classList.remove('hidden');
+        resultsEl.classList.remove('fade-in-cards');
+        void resultsEl.offsetWidth;
+        resultsEl.classList.add('fade-in-cards');
+        
+        resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function renderBenchmark(valId, subId, msValue) {
+        if (msValue === null || isNaN(msValue)) {
+            document.getElementById(valId).innerText = "N/A";
+            document.getElementById(subId).innerText = `Too few data (<50)`;
+            return;
+        }
+
+        document.getElementById(valId).innerText = `${formatNumber(msValue, 1)} ms`;
+        const ratePerSec = msValue > 0 ? Math.round(1000 / msValue) : 0;
+        document.getElementById(subId).innerText = `Peak Rate: ~${ratePerSec} Scans/s`;
+    }
+
+    function formatDuration(seconds) {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = Math.floor(seconds % 60);
+        return `${h > 0 ? h + 'h ' : ''}${m}m ${s}s`;
+    }
+</script>
+
+</body>
+</html>
