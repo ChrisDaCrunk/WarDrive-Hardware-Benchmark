@@ -54,11 +54,11 @@ Data privacy is a major consideration in wireless logging. Therefore:
 * Drag-and-Drop / File selection for `.csv` and `.txt` files (featuring a privacy banner and test instructions).
 * Transmits the file via `FormData` (`POST`) to `process_and_submit.php`.
 * Renders header metadata, session statistics, benchmark latency cards, and tier ratings:
-  * **Elite Benchmark Tier:** > 50,000$ pts
-  * **High-Performance Tier:** > 30,000$ pts
-  * **Optimized Tier:** > 15,000$ pts
-  * **Baseline Tier:** > 5,000$ pts
-  * **Entry / Low Activity:** < 5,000$ pts
+  * **Elite Benchmark Tier:** > 50,000 pts
+  * **High-Performance Tier:** > 30,000 pts
+  * **Optimized Tier:** > 15,000 pts
+  * **Baseline Tier:** > 5,000 pts
+  * **Entry / Low Activity:** < 5,000 pts
 * Calls `get_leaderboard.php` to render the Top 100 entries (`ORDER BY score DESC` where `showInBoard = 1`) in a purple/magenta global leaderboard.
 
 #### 2. Server Processing & Metric Engines (`process_and_submit.php`)
